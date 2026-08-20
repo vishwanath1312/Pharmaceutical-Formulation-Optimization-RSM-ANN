@@ -377,5 +377,5 @@ elif page=='📑 Research Evidence':
     with tabs[4]:
         st.markdown('**Supplied article alignment**')
         st.write('The supplied article motivates the combined use of design-of-experiments/RSM and ANN for formulation/process modelling. This implementation adapts that workflow to the supplied three-factor/three-response dataset; it does not reproduce the article experimental design when the supplied dataset does not support it.')
-\nst.markdown('---')
+ st.markdown('---')
 st.caption('Pharmaceutical Formulation Optimization Dashboard • RSM + ML + ANN • For research and educational use; model recommendations require experimental validation.')
