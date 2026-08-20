@@ -26,7 +26,14 @@ FEATURES = ['Stearic acid', 'Tween 80', 'Particle size']
 RESPONSES = ['Entrapment efficiency', 'Drug content', 'Drug release']
 
 CUSTOM_CSS = '''<style>
-.stApp{background:#f5f7f8} h1,h2,h3{color:#101820}.hero{padding:10px 0 18px}.eyebrow{font-family:monospace;color:#0e6e62;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase}.title{font-size:2.1rem;font-weight:700}.sub{color:#55606b}.card{background:white;border:1px solid #e2e6ea;border-radius:10px;padding:12px}.stButton>button,.stDownloadButton>button{background:#0e6e62;color:white;border:0;border-radius:8px}
+.stApp{background:#f6f8fb}
+.hero{padding:8px 0 18px}.eyebrow{font-family:monospace;color:#176b87;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase}
+.title{font-size:2.15rem;font-weight:750;color:#17212b}.sub{color:#5b6670;font-size:1rem}
+.card{background:white;border:1px solid #e4e9ef;border-radius:14px;padding:16px;margin-bottom:12px}
+.helpbox{background:#eef7fb;border-left:5px solid #176b87;border-radius:10px;padding:12px 15px;margin:8px 0 16px}
+.step{background:white;border:1px solid #e3e8ee;border-radius:12px;padding:12px;height:100%}
+.stButton>button,.stDownloadButton>button{border-radius:9px;font-weight:600}
+section[data-testid="stSidebar"]{background:#ffffff}
 </style>'''
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
@@ -130,27 +137,36 @@ def train_ann():
     return scaler,final,pd.DataFrame(rows),pred,best
 ann_scaler,ann_model,ann_tuning,ann_loo_pred,ann_hidden=train_ann()
 
-pages=['Overview','Dataset','ANOVA (RSM)','Response Surfaces','ML Comparison','ANN (Article-inspired)','Optimization','Outlier Analysis']
-page=st.sidebar.radio('Navigate',pages)
+st.sidebar.markdown('## 🔬 Formulation Research Lab')
+st.sidebar.caption('Research-grade RSM • ML • ANN analysis')
+pages=['🏠 Research Overview','📊 Experimental Dataset','📐 DoE / RSM / ANOVA','📈 Response Surfaces','🤖 Predictive Model Benchmark','🧠 ANN Architecture & Training','🔄 ANN Forward / Backward Analysis','🎯 Multi-Response Optimization','🔎 Data Quality & Diagnostics','📑 Research Evidence']
+page=st.sidebar.radio('Choose an analysis',pages,index=0)
 st.sidebar.markdown('---')
 st.sidebar.metric('Experimental runs',len(data))
-st.sidebar.metric('Factors',len(FEATURES))
-st.sidebar.metric('Responses',len(RESPONSES))
-st.sidebar.caption('Methodology aligned to the supplied Pharmaceutics RSM + ANN article, adapted to the supplied 3-factor/3-response dataset.')
+cA,cB=st.sidebar.columns(2)
+cA.metric('Factors',len(FEATURES)); cB.metric('Responses',len(RESPONSES))
+st.sidebar.info('**Quick guide**\n\n1. Start with Home\n2. Check Dataset\n3. Explore RSM/ML/ANN\n4. Try an input in Forward & Backward\n5. Review Optimization\n\nResults are model-based and require experimental validation.')
 
-if page=='Overview':
-    header('RSM + Machine Learning + ANN Formulation Optimization','A research-oriented dashboard using the supplied formulation dataset and an article-inspired RSM/ANN workflow.')
-    c1,c2,c3,c4=st.columns(4)
-    c1.metric('Runs',len(data)); c2.metric('Factors',3); c3.metric('Responses',3); c4.metric('ANN architecture',f'3-{ann_hidden}-3')
-    st.markdown('### Study design')
-    st.write('**Inputs:** Stearic acid, Tween 80, Particle size.  **Outputs:** Entrapment efficiency, Drug content, Drug release.')
-    st.info('The reference article uses RSM/DoE to establish factor–response relationships and ANN to model nonlinear relationships and support optimization. This implementation follows that logic while adapting the ANN from the paper’s 4-input/6-output setting to the supplied 3-input/3-output dataset. The supplied dataset contains 10 experimental runs, so the application does not falsely label it as a Box–Behnken design.')
-    st.markdown('### Pipeline')
-    st.code('Experimental formulation data → preprocessing → quadratic RSM/ANOVA → response surfaces → ML comparison → ANN hidden-layer tuning → multi-response optimization → experimental-run validation')
-    st.markdown('### Data preview')
-    st.dataframe(data,width='stretch',hide_index=True)
+if page=='🏠 Research Overview':
+    st.markdown('<div class="hero"><div class="eyebrow">RESEARCH WORKBENCH</div><div class="title">Pharmaceutical Formulation Optimization</div><div class="sub">A reproducible RSM + machine-learning + ANN framework for formulation factor–response modelling.</div></div>',unsafe_allow_html=True)
+    st.markdown('### Research question')
+    st.write('How do the formulation/process factors influence the measured formulation responses, and can statistical and nonlinear learning models identify a promising multi-response operating region?')
+    st.markdown('### Experimental factors and responses')
+    c1,c2=st.columns(2)
+    with c1:
+        st.markdown('**Factors (X)**')
+        for f in FEATURES: st.write('•',f)
+    with c2:
+        st.markdown('**Responses (Y)**')
+        for r in RESPONSES: st.write('•',r)
+    st.markdown('### Analytical workflow')
+    st.code('Experimental data → data audit → scaling/preprocessing → quadratic RSM → ANOVA → residual diagnostics → ML benchmark → ANN training/tuning → forward/backward analysis → desirability optimization → validation')
+    st.markdown('### Research safeguards')
+    st.warning('The supplied dataset contains 10 experimental runs. Model complexity, validation strategy and optimization claims should therefore be interpreted cautiously. A model-derived optimum is a hypothesis for experimental confirmation, not a validated pharmaceutical formulation.')
+    st.markdown('### Reproducibility')
+    st.write('All analyses should be run from the supplied dataset with fixed preprocessing, documented model settings, validation metrics and saved figures/tables. Avoid reporting training performance alone.')
 
-elif page=='Dataset':
+elif page=='📊 Experimental Dataset':
     header('Dataset','The application uses the newly supplied formulation workbook as the single source of experimental data.')
     st.dataframe(data,width='stretch',hide_index=True)
     st.markdown('### Descriptive statistics')
@@ -158,7 +174,7 @@ elif page=='Dataset':
     csv=data.to_csv(index=False).encode()
     st.download_button('Download processed dataset CSV',csv,'processed_formulation_dataset.csv','text/csv')
 
-elif page=='ANOVA (RSM)':
+elif page=='📐 DoE / RSM / ANOVA':
     header('Quadratic RSM and ANOVA','Second-order response-surface model with main effects, two-factor interactions and quadratic terms.')
     response=st.selectbox('Response',RESPONSES)
     m=rsm_models[response]
@@ -171,7 +187,7 @@ elif page=='ANOVA (RSM)':
     st.text(m.summary())
     st.caption('Because the supplied dataset has only 10 runs and the full 3-factor quadratic model has 9 fitted coefficients, residual degrees of freedom are extremely limited. Treat p-values and individual coefficients as exploratory and add more designed experimental runs before making confirmatory claims.')
 
-elif page=='Response Surfaces':
+elif page=='📈 Response Surfaces':
     header('Response Surfaces','3D/contour visualization for the fitted quadratic RSM. One factor is held at its observed mean.')
     response=st.selectbox('Response',RESPONSES)
     pairs=[('Stearic acid','Tween 80','Particle size'),('Stearic acid','Particle size','Tween 80'),('Tween 80','Particle size','Stearic acid')]
@@ -192,7 +208,7 @@ elif page=='Response Surfaces':
     fig2.update_layout(xaxis_title=a,yaxis_title=b,height=500)
     st.plotly_chart(fig2,width='stretch')
 
-elif page=='ML Comparison':
+elif page=='🤖 Predictive Model Benchmark':
     header('Machine Learning Comparison','Leave-one-out cross-validation is used because the supplied dataset contains only 10 observations.')
     summary=ml_results.groupby('Model')[['R²','MAE','RMSE']].mean().sort_values(['RMSE','MAE'])
     st.dataframe(summary.style.format({'R²':'{:.4f}','MAE':'{:.5f}','RMSE':'{:.5f}'}),width='stretch')
@@ -200,7 +216,7 @@ elif page=='ML Comparison':
     st.dataframe(ml_results[ml_results.Model==model],width='stretch',hide_index=True)
     st.caption('For a small experimental dataset, cross-validation estimates can be unstable. Use these results for model comparison, not as a substitute for independent experimental validation.')
 
-elif page=='ANN (Article-inspired)':
+elif page=='🧠 ANN Architecture & Training':
     header('Artificial Neural Network','Article-inspired ANN workflow: scaled inputs, hidden-neuron trial-and-error, leave-one-out validation and final prediction model.')
     st.write(f'The reference paper reported an optimum **4-6-6 MLP** for four inputs and six outputs. Here, the supplied dataset has **3 inputs and 3 outputs**, so the architecture is adapted to **3-{ann_hidden}-3**, with the hidden layer selected by minimum LOOCV RMSE.')
     st.markdown('### Hidden-layer tuning')
@@ -213,9 +229,88 @@ elif page=='ANN (Article-inspired)':
     st.dataframe(comp.groupby('Model')[['R²','MAE','RMSE']].mean().sort_values('RMSE'),width='stretch')
     st.caption('The supplied article reports that ANN can outperform second-order RSM when relationships are nonlinear. That is a methodological motivation, not a guarantee for this 10-run dataset.')
 
-elif page=='Optimization':
+elif page=='🔄 ANN Forward / Backward Analysis':
+    header('ANN Interactive Forward & Backward Pass','Enter a formulation, perform forward propagation through the trained ANN, calculate loss, and inspect the backward-pass gradients.')
+    st.markdown('<div class="helpbox"><b>How to use this page</b><br>① Enter three formulation values within the experimental range → ② click through the prediction → ③ choose an experimental run as the target → ④ inspect the error and backward gradients. This is an educational view of how the ANN learns.</div>', unsafe_allow_html=True)
+    st.markdown('### Step 1 — Enter formulation values')
+    preset = st.selectbox('Input preset', ['Use mean values','Use an experimental run'])
+    selected_run = None
+    if preset == 'Use an experimental run':
+        selected_run = st.selectbox('Choose experimental run', data['Runs'].tolist(), key='input_run')
+    cols=st.columns(3)
+    input_values=[]
+    for i,f in enumerate(FEATURES):
+        lo=float(X[f].min()); hi=float(X[f].max())
+        default=float(data.loc[data['Runs']==selected_run,f].iloc[0]) if selected_run is not None else float(X[f].mean())
+        input_values.append(cols[i].number_input(f'**{f}**', min_value=lo, max_value=hi, value=default, step=(hi-lo)/100 if hi>lo else 1.0, format='%.4f', help=f'Allowed range: {lo:.4f} to {hi:.4f}'))
+    x_raw=np.asarray(input_values,dtype=float).reshape(1,-1)
+    st.caption('Tip: staying inside the observed experimental range avoids extrapolation.')
+
+    st.markdown('### Step 2 — Forward propagation')
+    st.caption('The ANN converts your three inputs into three predicted responses.')
+    x_scaled=ann_scaler.transform(x_raw)
+    W1=ann_model.coefs_[0]; b1=ann_model.intercepts_[0]
+    W2=ann_model.coefs_[1]; b2=ann_model.intercepts_[1]
+    z1=x_scaled @ W1 + b1
+    h=np.tanh(z1)
+    z2=h @ W2 + b2
+    yhat=z2
+    st.write('**Scaled input X:**')
+    st.dataframe(pd.DataFrame(x_scaled,columns=FEATURES),hide_index=True,width='stretch')
+    st.write('**Hidden-layer pre-activation Z₁:**')
+    st.dataframe(pd.DataFrame(z1,columns=[f'H{i+1}' for i in range(W1.shape[1])]),hide_index=True,width='stretch')
+    st.write('**Hidden-layer activation H = tanh(Z₁):**')
+    st.dataframe(pd.DataFrame(h,columns=[f'H{i+1}' for i in range(W1.shape[1])]),hide_index=True,width='stretch')
+    st.write('**Predicted responses Ŷ:**')
+    pred_cols=st.columns(3)
+    for i,r in enumerate(RESPONSES):
+        pred_cols[i].metric(r, f'{yhat[0,i]:.3f}')
+    st.markdown('<div class="helpbox">These are <b>model predictions</b>, not laboratory measurements.</div>', unsafe_allow_html=True)
+
+    st.markdown('### Step 3 — Compare with an experimental target')
+    st.caption('Choose a measured run to calculate the prediction error. The saved ANN is not changed.')
+    run_id=st.selectbox('Target experimental run',data['Runs'].tolist(),index=0,key='target_run')
+    target=data.loc[data['Runs']==run_id,RESPONSES].to_numpy(dtype=float)
+    error=yhat-target
+    loss=float(np.mean(error**2))
+    dL_dyhat=(2.0/len(RESPONSES))*error
+    dZ2=dL_dyhat
+    dW2=h.T @ dZ2
+    db2=dZ2[0]
+    dH=dZ2 @ W2.T
+    dZ1=dH*(1.0-h**2)
+    dW1=x_scaled.T @ dZ1
+    db1=dZ1[0]
+    st.metric('MSE Loss',f'{loss:.8f}')
+    st.write('**Target Y and output error (Ŷ − Y):**')
+    st.dataframe(pd.DataFrame({'Response':RESPONSES,'Target Y':target[0],'Predicted Ŷ':yhat[0],'Error':error[0],'dL/dŶ':dL_dyhat[0]}),hide_index=True,width='stretch')
+    st.markdown('### Step 4 — Backward propagation')
+    st.success('The error is now propagated backward through the ANN so we can see which weights and hidden neurons receive the learning signal.')
+    advanced = st.toggle('Show detailed gradient matrices and equations', value=False)
+    if advanced:
+        c1,c2=st.columns(2)
+        with c1:
+            st.write('**Output-layer gradients**')
+            st.dataframe(pd.DataFrame(dW2,index=[f'H{i+1}' for i in range(W2.shape[0])],columns=RESPONSES),width='stretch')
+            st.write('Output bias gradient')
+            st.dataframe(pd.DataFrame([db2],columns=RESPONSES),hide_index=True,width='stretch')
+        with c2:
+            st.write('**Hidden-layer gradients**')
+            st.dataframe(pd.DataFrame(dW1,index=FEATURES,columns=[f'H{i+1}' for i in range(W1.shape[1])]),width='stretch')
+            st.write('Hidden bias gradient')
+            st.dataframe(pd.DataFrame([db1],columns=[f'H{i+1}' for i in range(W1.shape[1])]),hide_index=True,width='stretch')
+
+        st.markdown('### Backward-pass equations')
+    st.latex(r'Z_1=XW_1+b_1,\quad H=\tanh(Z_1),\quad \hat{Y}=HW_2+b_2')
+    st.latex(r'L=\frac{1}{3}\sum_j(\hat{Y}_j-Y_j)^2')
+    st.latex(r'\delta_2=\frac{2}{3}(\hat{Y}-Y),\quad \nabla W_2=H^T\delta_2,\quad \nabla b_2=\delta_2')
+    st.latex(r'\delta_1=(\delta_2W_2^T)\odot(1-H^2),\quad \nabla W_1=X^T\delta_1,\quad \nabla b_1=\delta_1')
+    st.success('The backward pass shows how the prediction error is propagated from Entrapment efficiency, Drug content and Drug release back to every hidden neuron and input-to-hidden weight.')
+
+elif page=='🎯 Multi-Response Optimization':
     header('Multi-response Optimization','Model-based search that maximizes the three recorded response values simultaneously.')
-    st.write('A geometric desirability is used for the three responses: each response is normalized between its observed minimum and maximum, then combined by the geometric mean. Particle size is already an input factor in this dataset, so it is **not** treated as an output to maximize/minimize.')
+    st.markdown('<div class="helpbox"><b>Goal:</b> find input values that give a strong combined prediction for all three responses. The result is a model-based recommendation that must be tested experimentally.</div>', unsafe_allow_html=True)
+    st.write('A geometric desirability is used for the three responses: each response is normalized between its observed minimum and maximum, then combined by the geometric mean. Particle size is an input factor in this dataset, not an output.')
     mins=Y.min(); maxs=Y.max()
     def desirability(v):
         ds=[]
@@ -244,7 +339,7 @@ elif page=='Optimization':
     st.dataframe(data.loc[[idx]],width='stretch',hide_index=True)
     st.caption('Optimization is a model-based recommendation. It must be experimentally prepared and validated before any pharmaceutical conclusion is drawn.')
 
-elif page=='Outlier Analysis':
+elif page=='🔎 Data Quality & Diagnostics':
     header('Outlier Analysis','Simple z-score screening for data-quality review; flagged observations are not automatically deleted.')
     num=data[FEATURES+RESPONSES]
     z=np.abs(zscore(num,ddof=0)); flags=(z>2.5).any(axis=1)
@@ -256,3 +351,31 @@ elif page=='Outlier Analysis':
         fig.add_trace(go.Box(y=data[col],name=col,boxmean=True),row=r,col=c)
     fig.update_layout(height=650,showlegend=False)
     st.plotly_chart(fig,width='stretch')
+
+
+elif page=='📑 Research Evidence':
+    st.markdown('## 📑 Research Evidence & Reporting')
+    st.markdown('<div class="helpbox"><b>Purpose:</b> convert computational results into defensible research evidence. Report experimental design, preprocessing, model specification, validation, uncertainty/diagnostics and optimization separately.</div>',unsafe_allow_html=True)
+    tabs=st.tabs(['Study design','Model reporting','Validation','Optimization reporting','Article alignment'])
+    with tabs[0]:
+        st.markdown('**Experimental design record**')
+        st.write(f'Number of runs: **{len(data)}**')
+        st.write('Factors: ' + ', '.join(FEATURES))
+        st.write('Responses: ' + ', '.join(RESPONSES))
+        st.info('Do not infer or label a formal DoE design (e.g., Box–Behnken) unless the supplied run structure and factor levels support that claim.')
+    with tabs[1]:
+        st.markdown('**Minimum model-reporting checklist**')
+        for x in ['Preprocessing/scaling method','Model architecture and activation function','Hyperparameters and stopping criteria','Training/validation strategy','Random seed where applicable','Performance metrics for every response','Predicted-vs-experimental plots','Residual/error diagnostics']:
+            st.checkbox(x, value=False, key='check_'+re.sub('[^a-zA-Z0-9]','_',x))
+    with tabs[2]:
+        st.markdown('**Validation principles**')
+        st.write('For a very small experimental dataset, use validation methods appropriate to the sample size (for example leave-one-out cross-validation where implemented), and report fold-wise or aggregated metrics. Compare models on the same splits.')
+        st.warning('Do not claim generalization, superiority of ANN over RSM, or statistical significance unless supported by the computed validation evidence.')
+    with tabs[3]:
+        st.markdown('**Optimization evidence**')
+        st.write('Report the objective/desirability definition, factor bounds, predicted responses at the optimum, desirability score, and—most importantly—experimental confirmation of the proposed formulation.')
+    with tabs[4]:
+        st.markdown('**Supplied article alignment**')
+        st.write('The supplied article motivates the combined use of design-of-experiments/RSM and ANN for formulation/process modelling. This implementation adapts that workflow to the supplied three-factor/three-response dataset; it does not reproduce the article experimental design when the supplied dataset does not support it.')
+\nst.markdown('---')
+st.caption('Pharmaceutical Formulation Optimization Dashboard • RSM + ML + ANN • For research and educational use; model recommendations require experimental validation.')
